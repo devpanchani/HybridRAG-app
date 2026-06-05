@@ -40,6 +40,26 @@ User Question
 
 ---
 
+## Application UI Preview
+
+Here is the premium dark-themed interface of the Hybrid RAG application, showing the layout, sidebar controls, PDF upload status, and interactive chat history:
+
+<table>
+  <tr>
+    <td width="50%"><strong>1. Modern Workspace & Upload</strong><br/><img src="./screenshots/screenshot1.png" alt="Workspace UI" /></td>
+    <td width="50%"><strong>2. PDF Processing & Status</strong><br/><img src="./screenshots/screenshot2.png" alt="Document Uploaded" /></td>
+  </tr>
+  <tr>
+    <td width="50%"><strong>3. Hybrid Search Q&A Flow</strong><br/><img src="./screenshots/screenshot3.png" alt="Chat Interface" /></td>
+    <td width="50%"><strong>4. Rich Markdown Answers & Citations</strong><br/><img src="./screenshots/screenshot4.png" alt="Answers and Citations" /></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><strong>5. Persistent Conversations & Historical Sessions</strong><br/><img src="./screenshots/screenshot5.png" alt="Chat History Sidebar" width="80%" /></td>
+  </tr>
+</table>
+
+---
+
 ## Architecture
 
 | Component | Technology |
