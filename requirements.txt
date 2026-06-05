@@ -1,0 +1,32 @@
+# Document loading
+pypdf
+
+# Chunking + pipeline glue
+langchain
+langchain-community
+langchain-text-splitters
+langchain-openai
+
+# Sparse retrieval
+rank-bm25
+
+# Dense retrieval + reranking
+sentence-transformers
+faiss-cpu
+chromadb
+
+# LLM
+openai
+langchain-groq
+
+# Evaluation
+ragas
+datasets         # ragas needs this
+
+# API layer
+fastapi
+uvicorn
+python-multipart
+
+# Config
+python-dotenv

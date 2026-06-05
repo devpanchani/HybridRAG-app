@@ -1,0 +1,33 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+venv/
+ENV/
+env/
+
+# Environment Variables (CRITICAL: Prevents API keys from leaking)
+.env
+.env.local
+
+# Database and Vector Stores
+data/chroma_db/
+
+# PDFs and Data
+data/*.pdf
+!data/.gitkeep
+
+# Logs and Output
+*.log
+api_activity.log
+
+# IDEs and OS files
+.vscode/
+.idea/
+.DS_Store
