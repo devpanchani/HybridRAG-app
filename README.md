@@ -2,6 +2,20 @@
 
 > A production-ready, **Hybrid Retrieval-Augmented Generation (RAG)** backend that answers questions from PDF documents with high precision, citing exactly which page it got the answer from.
 
+## 🚀 Live Demo
+
+[![Live App](https://img.shields.io/badge/Live%20App-Railway-blueviolet?style=for-the-badge&logo=railway)](https://hybridrag-app-production.up.railway.app)
+[![API Docs](https://img.shields.io/badge/API%20Docs-Swagger%20UI-green?style=for-the-badge&logo=swagger)](https://hybridrag-app-production.up.railway.app/docs)
+[![Health Check](https://img.shields.io/badge/Health-Online-brightgreen?style=for-the-badge)](https://hybridrag-app-production.up.railway.app/health)
+
+| Link | URL |
+|------|-----|
+| 🌐 **Web UI** | https://hybridrag-app-production.up.railway.app |
+| 📖 **Swagger API Docs** | https://hybridrag-app-production.up.railway.app/docs |
+| 💚 **Health Check** | https://hybridrag-app-production.up.railway.app/health |
+
+> **How to use:** Open the Web UI → Upload any PDF → Ask questions in natural language. The app will answer with cited page numbers.
+
 ---
 
 ## What is this?
