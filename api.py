@@ -6,10 +6,8 @@ from pydantic import BaseModel
 import pipeline
 import os
 import logging
-import time
 import shutil
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -20,7 +18,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger("RAG-API")
 
-# Define Request and Response structures
 class QueryRequest(BaseModel):
     question: str
     hybrid_top_k: int = 20
@@ -40,18 +37,8 @@ class QueryResponse(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Lifespan context manager runs before the server starts accepting requests.
-    It parses the PDF and builds the Vector/BM25 indices in memory.
-    """
-    pdf_path = os.getenv("RAG_PDF_PATH", "data/sample.pdf")
-    logger.info(f"Initializing RAG pipeline with {pdf_path}...")
-    try:
-        pipeline.initialize(pdf_path=pdf_path)
-        logger.info("Pipeline initialized successfully! Ready for requests.")
-    except Exception as e:
-        logger.error(f"Failed to initialize pipeline: {e}")
-        raise e
+    os.makedirs("data", exist_ok=True)
+    logger.info("Server started. Waiting for PDF upload via /upload endpoint.")
     yield
     logger.info("Shutting down API server.")
 
@@ -62,7 +49,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Serve the frontend chat UI
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
@@ -71,27 +57,20 @@ async def serve_ui():
 
 @app.get("/health")
 async def health_check():
-    """Monitoring endpoint for system health and uptime."""
     return {"status": "healthy", "service": "Hybrid RAG API"}
-
 
 @app.get("/document")
 async def get_current_document():
-    """Returns the name of the currently indexed PDF document."""
-    pdf_path = os.getenv("RAG_PDF_PATH", "data/sample.pdf")
+    pdf_path = os.getenv("RAG_PDF_PATH", "")
+    if not pdf_path:
+        return {"current_document": None, "message": "No document uploaded yet."}
     return {"current_document": os.path.basename(pdf_path)}
-
 
 @app.post("/upload")
 async def upload_pdf(file: UploadFile = File(...)):
-    """
-    Upload a new PDF to replace the currently indexed document.
-    The old index is cleared and the new PDF is fully re-indexed.
-    """
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported.")
 
-    # Save uploaded PDF to the data directory
     save_path = os.path.join("data", file.filename)
     try:
         with open(save_path, "wb") as buffer:
@@ -102,15 +81,14 @@ async def upload_pdf(file: UploadFile = File(...)):
     finally:
         file.file.close()
 
-    logger.info(f"New PDF uploaded: {file.filename}. Clearing old index and re-indexing...")
+    logger.info(f"New PDF uploaded: {file.filename}. Indexing...")
 
-    # Clear old ChromaDB index and re-initialize with new PDF
     try:
         from dense_retrieval import clear_index
         clear_index()
         pipeline.initialize(pdf_path=save_path)
         os.environ["RAG_PDF_PATH"] = save_path
-        logger.info(f"Successfully re-indexed: {file.filename}")
+        logger.info(f"Successfully indexed: {file.filename}")
     except Exception as e:
         logger.error(f"Failed to index uploaded PDF: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to index PDF: {str(e)}")
@@ -123,9 +101,9 @@ async def upload_pdf(file: UploadFile = File(...)):
 
 @app.post("/chat", response_model=QueryResponse)
 async def chat_endpoint(request: QueryRequest):
-    """
-    Submit a natural language question to the RAG pipeline.
-    """
+    if not os.getenv("RAG_PDF_PATH"):
+        raise HTTPException(status_code=400, detail="No document uploaded yet. Please upload a PDF first via /upload.")
+
     logger.info(f"Received query: '{request.question}'")
     try:
         result = pipeline.ask(
@@ -133,7 +111,7 @@ async def chat_endpoint(request: QueryRequest):
             hybrid_top_k=request.hybrid_top_k,
             rerank_top_k=request.rerank_top_k
         )
-        logger.info(f"Answered in {result['total_time']:.2f}s (Retrieval: {result['retrieval_time']:.2f}s, Generation: {result['generation_time']:.2f}s)")
+        logger.info(f"Answered in {result['total_time']:.2f}s")
         return QueryResponse(**result)
     except RuntimeError as e:
         logger.error(f"RuntimeError during query: {e}")
@@ -144,5 +122,4 @@ async def chat_endpoint(request: QueryRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    # Start the development server
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -38,8 +38,14 @@ def _init_chroma():
 
 def clear_index() -> None:
     """Wipe all chunks from ChromaDB so a new PDF can be indexed from scratch."""
+    global _collection
     _init_chroma()
-    _collection.delete(where={"page": {"$gte": 0}})
+    # Delete and recreate the collection — the safest way to clear all data
+    _chroma_client.delete_collection(name="rag_documents")
+    _collection = _chroma_client.get_or_create_collection(
+        name="rag_documents",
+        metadata={"hnsw:space": "cosine"}
+    )
     print("ChromaDB collection cleared. Ready to index a new document.")
 
 
